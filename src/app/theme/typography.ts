@@ -1,6 +1,5 @@
 export const typography = {
-  fontFamily:
-    'system-ui, -apple-system, BlinkMacSystemFont, inherit , "Segoe UI", sans-serif',
+  fontFamily: 'Vazirmatn, system-ui, -apple-system, sans-serif',
 
   h3: {
     fontWeight: 700,
