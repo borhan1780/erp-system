@@ -7,8 +7,8 @@ import DashboardLayout from "@/modules/dashboard/layouts/DashboardLayout";
 import DashboardPage from "@/modules/dashboard/pages/DashboardPage";
 import { DashboardSessionProvider } from "@/modules/dashboard/session/DashboardSessionProvider";
 
-// Importهای مربوط به ماژول اصلی ERP
 import { AppLayout } from "@/modules/app/layouts/AppLayout";
+import { ModulePage } from "@/modules/app/pages/ModulePage";
 import { Paper, Typography } from "@mui/material";
 
 export const router = createBrowserRouter([
@@ -20,7 +20,6 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        // Provider در سطح بالا قرار گرفت تا Context دیتای انتخاب شده در /app هم در دسترس باشد
         element: (
           <DashboardSessionProvider>
             <Outlet />
@@ -45,51 +44,22 @@ export const router = createBrowserRouter([
                 path: "tree",
                 element: (
                   <Paper sx={{ p: 4, borderRadius: 3, dir: "rtl" }}>
-                    <Typography
-                      variant="h5"
-                      align="right"
-                      sx={{ fontWeight: 700 }}
-                    >
+                    <Typography variant="h5" align="right" sx={{ fontWeight: 700 }}>
                       به محیط کلی ERP خوش آمدید
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      align="right"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
-                      از منوی سمت راست می‌توانید بخش‌های مختلف سیستم را انتخاب
-                      کنید.
+                    <Typography variant="body2" align="right" color="text.secondary" sx={{ mt: 1 }}>
+                      از منوی سمت راست می‌توانید بخش‌های مختلف سیستم را انتخاب کنید.
                     </Typography>
                   </Paper>
                 ),
               },
               {
-                path: "module",
-                element: (
-                  <Paper sx={{ p: 4, borderRadius: 3, dir: "rtl" }}>
-                    <Typography
-                      variant="h5"
-                      align="right"
-                      sx={{ fontWeight: 700 }}
-                    >
-                      به ماژول انتخابی خوش آمدید
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      align="right"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
-                      منوی سمت راست اختصاصاً زیرمجموعه‌های این ماژول را نمایش
-                      می‌دهد.
-                    </Typography>
-                  </Paper>
-                ),
+                path: "module/:modulePrefix",
+                element: <ModulePage />,
               },
               {
                 index: true,
-                element: <Navigate to="module" replace />,
+                element: <Navigate to="tree" replace />,
               },
             ],
           },
