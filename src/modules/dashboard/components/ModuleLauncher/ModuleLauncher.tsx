@@ -28,10 +28,10 @@ export function ModuleLauncher() {
 
   const company = data?.find((item) => item.company.id === currentCompanyId);
 
-  function handleSelectModule(moduleId: number) {
+  function handleSelectModule(moduleId: number , prefix: string) {
     setCurrentModuleId(moduleId);
 
-    navigate("/app/module");
+    navigate(`/app/module/${prefix}`);
   }
 
   function getModuleIcon(prefix: string) {
@@ -96,7 +96,7 @@ export function ModuleLauncher() {
           }}
         >
           <CardActionArea
-            onClick={() => handleSelectModule(module.id)}
+            onClick={() => handleSelectModule(module.id , module.prefix)}
             sx={{
               height: "100%",
             }}
