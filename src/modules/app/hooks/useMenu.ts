@@ -5,18 +5,17 @@ import { useCurrentModule } from "@/modules/dashboard/session/useCurrentModule";
 import { getMenu } from "../api/menu.api";
 
 export function useMenu() {
-  const { data: me, isLoading: isMeLoading } = useMe();
-  const { currentCompanyId } = useCurrentCompany();
+  const {data:me , isLoading:isMeLoading } = useMe();
+  const { currentCompanyId} = useCurrentCompany();
   const { currentModuleId } = useCurrentModule();
 
   const isModular = me?.app_mode === "MODULAR";
-
-  // شرط ارسال درخواست: داشتن companyId و در حالت MODULAR داشتن currentModuleId
   const canFetch =
-    Boolean(currentCompanyId) && (!isModular || Boolean(currentModuleId));
+  Boolean(currentCompanyId) &&
+  (!isModular || Boolean(currentModuleId));
 
   const query = useQuery({
-    queryKey: [
+    queryKey : [
       "menu",
       me?.app_mode,
       currentCompanyId,
@@ -25,15 +24,27 @@ export function useMenu() {
     queryFn: () =>
       getMenu({
         companyId: currentCompanyId!,
-        moduleId: isModular ? currentModuleId : undefined,
+        moduleId : isModular ? currentModuleId : undefined,
       }),
-    enabled: Boolean(me) && canFetch,
-    staleTime: 5 * 60 * 1000,
-  });
 
-  return {
+      enabled : Boolean(me) && canFetch,
+      staleTime : 5 * 60 * 1000,  
+  });
+  return { 
     ...query,
     isModular,
-    isLoading: isMeLoading || query.isLoading,
+    isLoading : isMeLoading || query.isLoading,
   };
 }
+  
+  
+
+
+
+
+
+
+
+
+
+
