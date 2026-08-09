@@ -14,31 +14,36 @@ export function AppLayout() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f6f8fc", direction: "rtl" }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f6f8fc", direction: "rtl", dir: "rtl" }}>
       <CssBaseline />
 
-      {/* ۱. AppHeader سرتاسری بالا */}
+      {/* هدر بالایی */}
       <AppHeader onMenuClick={handleDrawerToggle} />
 
-      {/* ۲. بدنه زیر هدر */}
-      <Box sx={{ display: "flex", pt: "64px", minHeight: "100vh" }}>
+      {/* بدنه اصلی */}
+      <Box sx={{ display: "flex", pt: "64px", minHeight: "100vh", direction: "rtl", dir: "rtl" }}>
         
-        {/* بخش محتوای اصلی (در سمت چپ سایدبار قرار می‌گیرد) */}
+        {/* بخش محتوای اصلی - چسبیده به سمت راست سایدبار */}
         <Box
           component="main"
           sx={{
             flexGrow: 1,
             p: { xs: 2, sm: 3 },
-            marginRight: { md: `${DRAWER_WIDTH}px` }, 
-            marginLeft: 0,
+            mr: { md: `${DRAWER_WIDTH}px` }, // مارجین از سمت راست برای جای‌گیری سایدبار
+            ml: 0,
             width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
             minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            direction: "rtl",
+            textAlign: "right",
           }}
         >
           <Outlet />
         </Box>
 
-        {/* سایدبار سمت راست */}
+        {/* سایدبار ثابت سمت راست */}
         <Sidebar mobileOpen={mobileOpen} onMobileClose={handleDrawerToggle} />
       </Box>
     </Box>
