@@ -9,7 +9,7 @@ import { DashboardSessionProvider } from "@/modules/dashboard/session/DashboardS
 
 import { AppLayout } from "@/modules/app/layouts/AppLayout";
 import { ModulePage } from "@/modules/app/pages/ModulePage";
-import { Paper, Typography } from "@mui/material";
+import { VouchersPage } from "@/modules/accounting/pages/VouchersPage"; // اضافه کردن صفحه اسناد حسابداری
 
 export const router = createBrowserRouter([
   {
@@ -37,29 +37,26 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: "/app",
             element: <AppLayout />,
             children: [
               {
-                path: "tree",
-                element: (
-                  <Paper sx={{ p: 4, borderRadius: 3, dir: "rtl" }}>
-                    <Typography variant="h5" align="right" sx={{ fontWeight: 700 }}>
-                        خوش امدید ERP به محیط
-                    </Typography>
-                    <Typography variant="body2" align="right" color="text.secondary" sx={{ mt: 1 }}>
-                      از منوی سمت چپ می‌توانید بخش‌های مختلف سیستم را انتخاب کنید.
-                    </Typography>
-                  </Paper>
-                ),
-              },
-              {
-                path: "module/:modulePrefix",
+                path: "/app/tree",
                 element: <ModulePage />,
               },
               {
-                index: true,
-                element: <Navigate to="tree" replace />,
+                path: "/app/module/:modulePrefix",
+                element: <ModulePage />,
+              },
+              // --------------------------------------------------------
+              // مسیر صفحه اسناد حسابداری زیرمجموعه AppLayout
+              // --------------------------------------------------------
+              {
+                path: "/current-affairs/vouchers",
+                element: <VouchersPage />,
+              },
+              {
+                path: "/app",
+                element: <Navigate to="/app/tree" replace />,
               },
             ],
           },
