@@ -48,7 +48,7 @@ export const router = createBrowserRouter([
                       به محیط کلی ERP خوش آمدید
                     </Typography>
                     <Typography variant="body2" align="right" color="text.secondary" sx={{ mt: 1 }}>
-                      از منوی سمت راست می‌توانید بخش‌های مختلف سیستم را انتخاب کنید.
+                      از منوی سمت چپ می‌توانید بخش‌های مختلف سیستم را انتخاب کنید.
                     </Typography>
                   </Paper>
                 ),
