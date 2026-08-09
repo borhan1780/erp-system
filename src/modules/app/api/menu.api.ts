@@ -4,6 +4,11 @@ import type { MenuItemType, GetMenuParams, MenuRawResponse } from "../types/menu
 export async function getMenu(params: GetMenuParams): Promise<MenuItemType[]> {
   const { companyId, moduleId } = params;
 
+  // جلوگیری از ارسال ریکوئست اگر آیدی شرکت خالی یا undefined باشد
+  if (!companyId || companyId === "undefined") {
+    return [];
+  }
+
   const searchParams: Record<string, string> = {};
   if (moduleId) {
     searchParams.module_id = String(moduleId);
@@ -18,15 +23,14 @@ export async function getMenu(params: GetMenuParams): Promise<MenuItemType[]> {
   }
 
   if (response && typeof response === "object") {
-    if ("name_fa" in response || "id" in response){
+    if ("name_fa" in response || "id" in response) {
       return [response as MenuItemType];
     }
 
-    if ("items" in response && Array.isArray(response.items)){
+    if ("items" in response && Array.isArray(response.items)) {
       return response.items;
     }
   }
 
-  return[]
-
+  return [];
 }

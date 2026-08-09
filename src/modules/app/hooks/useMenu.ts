@@ -5,46 +5,41 @@ import { useCurrentModule } from "@/modules/dashboard/session/useCurrentModule";
 import { getMenu } from "../api/menu.api";
 
 export function useMenu() {
-  const {data:me , isLoading:isMeLoading } = useMe();
-  const { currentCompanyId} = useCurrentCompany();
+  const { data: me, isLoading: isMeLoading } = useMe();
+  const { currentCompanyId } = useCurrentCompany();
   const { currentModuleId } = useCurrentModule();
 
   const isModular = me?.app_mode === "MODULAR";
-  const canFetch =
-  Boolean(currentCompanyId) &&
-  (!isModular || Boolean(currentModuleId));
+
+  // شرط قطعی برای ارسال درخواست: 
+  // companyId حتماً باید وجود داشته باشد و مقدار string معتبر باشد (نه undefined یا empty)
+  const hasValidCompany = Boolean(currentCompanyId) && currentCompanyId !== "undefined";
+  const hasValidModule = !isModular || (Boolean(currentModuleId) && String(currentModuleId) !== "undefined");
+
+  const canFetch = hasValidCompany && hasValidModule;
 
   const query = useQuery({
-    queryKey : [
+    queryKey: [
       "menu",
       me?.app_mode,
       currentCompanyId,
       isModular ? currentModuleId : "TREE",
     ],
-    queryFn: () =>
-      getMenu({
-        companyId: currentCompanyId!,
-        moduleId : isModular ? currentModuleId : undefined,
-      }),
-
-      enabled : Boolean(me) && canFetch,
-      staleTime : 5 * 60 * 1000,  
+    queryFn: () => {
+      if (!currentCompanyId) throw new Error("Company ID is missing");
+      return getMenu({
+        companyId: currentCompanyId,
+        moduleId: isModular ? currentModuleId : undefined,
+      });
+    },
+    // درخواست فقط زمانی ارسال می‌شود که تمام آیدی‌های مورد نیاز معتبر باشند
+    enabled: Boolean(me) && canFetch,
+    staleTime: 5 * 60 * 1000, // ۵ دقیقه Cache باقی می‌ماند تا هنگام برگشت به صفحه نیاز به ریکوئست مجدد نباشد
   });
-  return { 
+
+  return {
     ...query,
     isModular,
-    isLoading : isMeLoading || query.isLoading,
+    isLoading: isMeLoading || query.isLoading,
   };
 }
-  
-  
-
-
-
-
-
-
-
-
-
-
