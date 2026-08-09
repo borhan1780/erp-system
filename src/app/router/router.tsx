@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
                 element: (
                   <Paper sx={{ p: 4, borderRadius: 3, dir: "rtl" }}>
                     <Typography variant="h5" align="right" sx={{ fontWeight: 700 }}>
-                      به محیط کلی ERP خوش آمدید
+                        خوش امدید ERP به محیط
                     </Typography>
                     <Typography variant="body2" align="right" color="text.secondary" sx={{ mt: 1 }}>
                       از منوی سمت چپ می‌توانید بخش‌های مختلف سیستم را انتخاب کنید.
