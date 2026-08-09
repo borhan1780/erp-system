@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Box, Chip, Stack } from "@mui/material";
+import { AppBar, Toolbar, Box, Chip, Stack, IconButton } from "@mui/material";
+import { MenuRounded } from "@mui/icons-material";
 import { useMe } from "@/modules/dashboard/hooks/useMe";
 import { useModules } from "@/modules/dashboard/hooks/useModules";
 import { usePeriods } from "@/modules/dashboard/hooks/usePeriods";
@@ -7,9 +8,11 @@ import { useCurrentPeriod } from "@/modules/dashboard/session/useCurrentPeriod";
 import UserMenu from "@/modules/dashboard/components/Header/UserMenu";
 import { ModuleSwitcher } from "../ModuleSwitcher/ModuleSwitcher";
 
-const DRAWER_WIDTH = 280;
+interface AppHeaderProps {
+  onMenuClick: () => void;
+}
 
-export function AppHeader() {
+export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const { data: me } = useMe();
   const { data: modulesData } = useModules();
 
@@ -19,10 +22,10 @@ export function AppHeader() {
   const { data: periodsData } = usePeriods(currentCompanyId);
 
   const companyName = modulesData?.find(
-    (x) => x.company.id === currentCompanyId,
+    (x) => x.company.id === currentCompanyId
   )?.company.name;
   const currentPeriodObj = periodsData?.find(
-    (x) => x.period.id === currentPeriodId,
+    (x) => x.period.id === currentPeriodId
   );
   const ledgerName = currentPeriodObj?.ledger.name;
   const periodName = currentPeriodObj?.period.name;
@@ -35,18 +38,32 @@ export function AppHeader() {
       color="inherit"
       elevation={1}
       sx={{
-        width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        mr: `${DRAWER_WIDTH}px`,
-        bgcolor: "background.paper",
+        width: "100%", // عرض سرتاسری مطابق دیاگرام
+        top: 0,
+        right: 0,
+        left: 0,
+        zIndex: (theme) => theme.zIndex.drawer + 1, // بالاتر قرار گرفتن از سایدبار
+        bgcolor: "#ffffff",
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between", dir: "rtl" }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+      <Toolbar sx={{ justifyContent: "space-between", direction: "rtl", minHeight: 64 }}>
+        {/* سمت راست: دکمه موبایل، ماژول فعال و چیپ‌های اطلاعات */}
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={onMenuClick}
+            sx={{ display: { md: "none" } }}
+          >
+            <MenuRounded />
+          </IconButton>
+
           {isModular && <ModuleSwitcher />}
 
           <Box
             sx={{
-              display: { xs: "none", md: "flex" },
+              display: { xs: "none", lg: "flex" },
               gap: 1,
               alignItems: "center",
             }}
