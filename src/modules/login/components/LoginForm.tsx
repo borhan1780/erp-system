@@ -13,13 +13,40 @@ import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import { useState } from "react";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useLoginForm } from "../hooks/useLoginForm";
+import { authStorage } from "@/core/security";
+
 export function LoginForm() {
   const { register, handleSubmit, errors, onSubmit, isPending } =
     useLoginForm();
 
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // استخراج مسیر قبلی کاربر یا استفاده از مسیر پیش‌فرض /dashboard
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ||
+    "/dashboard";
+
+const handleFormSubmit = async (data: any) => {
+    try {
+      // تایپ‌دهی صریح پاسخ لاگین جهت رفع خطای TypeScript
+      const response = (await onSubmit(data)) as { accessToken?: string } | undefined;
+
+      // ذخیره توکن
+      if (response?.accessToken) {
+        authStorage.setAccessToken(response.accessToken);
+      }
+
+      // هدایت کاربر به صفحه‌ای که قصد ورود به آن را داشت
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
 
   return (
     <Box
@@ -51,7 +78,11 @@ export function LoginForm() {
         برای ادامه، نام کاربری و رمز عبور خود را وارد کنید.
       </Typography>
 
-      <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        component="form"
+        noValidate
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
         <Stack spacing={3}>
           <Box>
             <Typography
