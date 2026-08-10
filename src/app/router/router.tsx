@@ -9,7 +9,7 @@ import { DashboardSessionProvider } from "@/modules/dashboard/session/DashboardS
 
 import { AppLayout } from "@/modules/app/layouts/AppLayout";
 import { ModulePage } from "@/modules/app/pages/ModulePage";
-import { VouchersPage } from "@/modules/accounting/pages/VouchersPage"; // اضافه کردن صفحه اسناد حسابداری
+import { VouchersPage } from "@/modules/accounting/pages/VouchersPage";
 
 export const router = createBrowserRouter([
   {
@@ -47,9 +47,6 @@ export const router = createBrowserRouter([
                 path: "/app/module/:modulePrefix",
                 element: <ModulePage />,
               },
-              // --------------------------------------------------------
-              // مسیر صفحه اسناد حسابداری زیرمجموعه AppLayout
-              // --------------------------------------------------------
               {
                 path: "/current-affairs/vouchers",
                 element: <VouchersPage />,
@@ -63,5 +60,9 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
