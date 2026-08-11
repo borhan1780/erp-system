@@ -1,113 +1,191 @@
+import { useState } from "react";
 import {
-  Paper,
-  Typography,
   Box,
-  Breadcrumbs,
-  Button,
-  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Chip,
+  CircularProgress,
+  Typography,
+  Stack,
 } from "@mui/material";
-import { AutorenewRounded, MoreVertRounded } from "@mui/icons-material";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
+
+import { useVouchers } from "../hooks/useVouchers";
+import { VouchersHeader } from "../components/VouchersHeader";
+import { toJalaliDate } from "@/shared/utils/date";
 
 export function VouchersPage() {
-  const handleRefresh = () => {
-    console.log("بروزرسانی اسناد حسابداری...");
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+
+  const { data, isLoading, isError, refetch, isFetching } = useVouchers(
+    page + 1,
+    pageSize
+  );
+
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
   };
 
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPageSize(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Typography color="error" align="center" sx={{ py: 4 }}>
+        خطا در دریافت اطلاعات اسناد حسابداری.
+      </Typography>
+    );
+  }
+
   return (
-    <Box sx={{ width: "100%" }}>
-      {/* هدر بالای صفحه */}
-      <Box
+    <Stack spacing={2} sx={{ width: "100%", height: "calc(100vh - 110px)" }}>
+      {/* هدر مجزا */}
+      <VouchersHeader onRefresh={refetch} isRefreshing={isFetching} />
+
+      {/* بخش جدول */}
+      <Paper
         sx={{
+          flex: 1,
           display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-          pb: 2,
-          borderBottom: "1px solid #e0e0e0",
-          width: "100%",
+          flexDirection: "column",
+          overflow: "hidden",
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
         }}
       >
-        {/* سمت راست: عنوان و مسیر صفحه (Breadcrumbs) */}
-        <Box
+        <TableContainer sx={{ flex: 1, overflowY: "auto" }}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">ردیف</TableCell>
+                <TableCell align="center">شماره</TableCell>
+                <TableCell align="center">تاریخ سند</TableCell>
+                <TableCell align="center">شرح</TableCell>
+                <TableCell align="center">وضعیت</TableCell>
+                <TableCell align="center">سریال</TableCell>
+                <TableCell align="center">ماژول</TableCell>
+                <TableCell align="center">نام شعبه</TableCell>
+                <TableCell align="center">نوع</TableCell>
+                <TableCell align="center">مبلغ</TableCell>
+                <TableCell align="center">تاریخ ثبت</TableCell>
+                <TableCell align="center">ضمیمه دارد</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data?.results.map((voucher) => (
+                <TableRow hover key={voucher.id}>
+                  <TableCell align="center">{voucher.row_number}</TableCell>
+                  <TableCell align="center">{voucher.number}</TableCell>
+                  <TableCell align="center">
+                    {toJalaliDate(voucher.date)}
+                  </TableCell>
+                  <TableCell align="center">
+                    {voucher.description || "-"}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={
+                        voucher.status === "DRAFT"
+                          ? "پیش‌نویس"
+                          : voucher.status === "PENDING"
+                          ? "در انتظار تأیید"
+                          : voucher.status === "FINAL"
+                          ? "قطعی"
+                          : "نامشخص"
+                      }
+                      color={
+                        voucher.status === "DRAFT"
+                          ? "default"
+                          : voucher.status === "PENDING"
+                          ? "warning"
+                          : voucher.status === "FINAL"
+                          ? "success"
+                          : "default"
+                      }
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell align="center">{voucher.serial}</TableCell>
+                  <TableCell align="center">{voucher.module_name}</TableCell>
+                  <TableCell align="center">{voucher.branch_name}</TableCell>
+                  <TableCell align="center">{voucher.type_name}</TableCell>
+                  <TableCell align="center">
+                    {voucher.amount.toLocaleString()}
+                  </TableCell>
+                  <TableCell align="center">
+                    {toJalaliDate(voucher.created_at)}
+                  </TableCell>
+                  <TableCell align="center">
+                    {voucher.has_attachment === "true" ? (
+                      <CheckCircleRoundedIcon
+                        color="success"
+                        fontSize="small"
+                      />
+                    ) : (
+                      <CancelRoundedIcon
+                        color="error"
+                        fontSize="small"
+                        sx={{ opacity: 0.6 }}
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={data?.count ?? 0}
+          rowsPerPage={pageSize}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="تعداد در صفحه:"
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            textAlign: "right",
+            borderTop: "1px solid",
+            borderColor: "divider",
+            "& .MuiTablePagination-actions": {
+              direction: "ltr",
+            },
           }}
-        >
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 700, mb: 0.5, color: "#1e293b" }}
-          >
-            اسناد حسابداری
-          </Typography>
-
-          <Breadcrumbs
-            aria-label="breadcrumb"
-            separator="/"
-            sx={{
-              fontSize: "0.85rem",
-              direction: "rtl",
-              "& .MuiBreadcrumbs-separator": {
-                mx: 0.8,
+          slotProps={{
+            actions: {
+              nextButton: {
+                children: <KeyboardArrowLeft />,
               },
-            }}
-          >
-            <Typography
-              color="text.primary"
-              sx={{ fontSize: "0.85rem", fontWeight: 600 }}
-            >
-              اسناد حسابداری
-            </Typography>
-            <Typography
-              color="text.primary"
-              sx={{ fontSize: "0.85rem", fontWeight: 600 }}
-            >
-              امور جاری
-            </Typography>
-            <Typography
-              color="text.primary"
-              sx={{ fontSize: "0.85rem", fontWeight: 600 }}
-            >
-              حسابداری
-            </Typography>
-          </Breadcrumbs>
-        </Box>
-
-        {/* سمت چپ: دکمه بروزرسانی و آیکون سه‌نقطه */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleRefresh}
-            startIcon={<AutorenewRounded fontSize="small" />}
-            sx={{
-              borderRadius: 2,
-              px: 2,
-              py: 0.75,
-              borderColor: "#0284c7",
-              color: "#0284c7",
-              fontSize: "0.85rem",
-              fontWeight: 600,
-              "&:hover": { borderColor: "#0369a1", bgcolor: "#f0f9ff" },
-            }}
-          >
-            بروزرسانی
-          </Button>
-          <IconButton size="small" sx={{ color: "#64748b" }}>
-            <MoreVertRounded />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* کارت اصلی محتوا */}
-      <Paper sx={{p: 3, borderRadius: 3, textAlign: "right",}}>
-        <Typography variant="body2" color="text.secondary">
-          محتوای جدول اسناد حسابداری در این بخش قرار می‌گیرد.
-        </Typography>
+              previousButton: {
+                children: <KeyboardArrowRight />,
+              },
+            },
+          }}
+        />
       </Paper>
-    </Box>
+    </Stack>
   );
 }
