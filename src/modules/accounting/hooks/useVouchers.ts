@@ -1,17 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { getVouchers } from "../api/vouchers.api";
+import type { GetVouchersParams } from "../types/vouchers.types";
 import {
   useCurrentCompany,
   useCurrentLedger,
   useCurrentPeriod,
 } from "@/modules/dashboard/session";
 
-export function useVouchers(page = 1, pageSize = 5) {
+export type UseVouchersOptions = Omit<
+  GetVouchersParams,
+  "companyId" | "ledgerId" | "periodId"
+>;
+
+export function useVouchers(options: UseVouchersOptions = { page: 1, pageSize: 5 }) {
   const { currentCompanyId } = useCurrentCompany();
   const { currentLedgerId } = useCurrentLedger();
   const { currentPeriodId } = useCurrentPeriod();
 
-  // بررسی معتبر بودن مقادیر شناسه (عدم ارسال درخواست با مقادیر پوچ)
   const isValid = Boolean(
     currentCompanyId &&
       currentCompanyId !== "null" &&
@@ -27,19 +32,17 @@ export function useVouchers(page = 1, pageSize = 5) {
       currentCompanyId,
       currentLedgerId,
       currentPeriodId,
-      page,
-      pageSize,
+      options,
     ],
     queryFn: () =>
       getVouchers({
         companyId: currentCompanyId!,
         ledgerId: currentLedgerId!,
         periodId: currentPeriodId!,
-        page,
-        pageSize,
+        ...options,
       }),
     enabled: isValid,
     staleTime: 0,
-    refetchOnMount: "always"
+    refetchOnMount: "always",
   });
 }

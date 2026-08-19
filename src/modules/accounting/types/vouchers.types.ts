@@ -3,7 +3,7 @@ export interface VoucherItem {
   id: string;
   id_initial: string;
   serial: number;
-  status: "FINAL" | "PRE_FINAL" | string;
+  status: "FINAL" | "PRE_FINAL" | "DRAFT" | "PENDING" | string;
   number: number;
   date: string;
   description: string;
@@ -28,10 +28,27 @@ export interface VouchersResponse {
   additional_data: Record<string, any>;
 }
 
+// ساختار ردیف‌های فیلتر
+export interface FilterRow {
+  id: string;
+  column: "number" | "date" | "description";
+  operator: string;
+  value: string;
+  secondValue?: string;
+}
+
+// پارامترهای ارسالی به API
 export interface GetVouchersParams {
   companyId: string;
   ledgerId: string;
   periodId: string;
   page?: number;
   pageSize?: number;
+  number?: string | number;
+  from_number?: string | number;
+  to_number?: string | number;
+  date?: string;
+  from_date?: string;
+  to_date?: string;
+  description?: string;
 }
