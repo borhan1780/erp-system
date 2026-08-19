@@ -23,7 +23,9 @@ import {
 } from "@mui/icons-material";
 import { CopyVouchersDialog } from "./CopyVouchersDialog";
 import { OrderVouchersDialog } from "./OrderVouchersDialog";
-import { VouchersFilterPopover, type FilterRow } from "./VouchersFilterPopover";
+import { VouchersFilterPopover } from "./VouchersFilterPopover";
+import type { FilterRow } from "../types/vouchers.types";
+
 interface VouchersHeaderProps {
   onRefresh: () => void;
   isRefreshing?: boolean;
@@ -35,7 +37,7 @@ export function VouchersHeader({
   isRefreshing,
   onApplyFilters,
 }: VouchersHeaderProps) {
-  const [anchorElMenu, setAnchorElMenu] = useState<null | HTMLElement>(null);
+  const [anchorElMenu , setAnchorElMenu] = useState<null | HTMLElement>(null);
   const [anchorElFilter, setAnchorElFilter] = useState<null | HTMLElement>(null);
 
   const [openCopyDialog, setOpenCopyDialog] = useState(false);
@@ -79,7 +81,6 @@ export function VouchersHeader({
             بروزرسانی
           </Button>
 
-          {/* دکمه آیکون فیلتر کنار سه‌نقطه */}
           <IconButton
             size="medium"
             onClick={(e) => setAnchorElFilter(e.currentTarget)}
@@ -88,7 +89,6 @@ export function VouchersHeader({
             <FilterListRounded color={openFilter ? "primary" : "action"} />
           </IconButton>
 
-          {/* دکمه سه‌نقطه */}
           <IconButton
             size="medium"
             onClick={(e) => setAnchorElMenu(e.currentTarget)}
@@ -96,7 +96,6 @@ export function VouchersHeader({
             <MoreVertRounded color="action" />
           </IconButton>
 
-          {/* منوی سه‌نقطه */}
           <Menu
             anchorEl={anchorElMenu}
             open={openMenu}
