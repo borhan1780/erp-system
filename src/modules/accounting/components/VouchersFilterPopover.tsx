@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Popover,
   Stack,
@@ -10,7 +10,6 @@ import {
   MenuItem,
   TextField,
   Divider,
-  InputAdornment,
 } from "@mui/material";
 import {
   AddRounded,
@@ -19,13 +18,17 @@ import {
   DeleteOutlineRounded,
   CalendarMonthRounded,
 } from "@mui/icons-material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFnsJalali } from "@mui/x-date-pickers/AdapterDateFnsJalali";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { format, parse } from "date-fns-jalali";
 
 export interface FilterRow {
   id: string;
   column: "number" | "date" | "description";
   operator: string;
   value: string;
-  secondValue?: string; // برای حالت "بین" در تاریخ
+  secondValue?: string;
 }
 
 interface VouchersFilterPopoverProps {
@@ -55,6 +58,59 @@ const COLUMN_OPERATORS = {
   ],
   description: [{ id: "contains", label: "شامل" }],
 };
+
+// کامپوننت تقویم شمسی رسمی MUI
+function MuiJalaliDatePicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const parsedDate = value ? parse(value, "yyyy/MM/dd", new Date()) : null;
+  const isValidDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null;
+
+  return (
+    <DatePicker
+      label={label}
+      value={isValidDate}
+      onChange={(newDate: Date | null) => {
+        if (newDate && !isNaN(newDate.getTime())) {
+          onChange(format(newDate, "yyyy/MM/dd"));
+        } else {
+          onChange("");
+        }
+      }}
+      slots={{
+        openPickerIcon: CalendarMonthRounded,
+      }}
+      slotProps={{
+        openPickerButton: {
+          sx: { color: "#1976d2", p: 0.5 },
+        },
+        textField: {
+          variant: "standard",
+          placeholder: "YYYY/MM/DD",
+          sx: {
+            flex: 1,
+            "& .MuiInputBase-input": { fontSize: 13, py: 0.5 },
+            "& .MuiInputLabel-root": { fontSize: 13 },
+          },
+        },
+        popper: {
+          sx: {
+            zIndex: 2000,
+            "& .MuiPaper-root": {
+              borderRadius: 0,
+            },
+          },
+        },
+      }}
+    />
+  );
+}
 
 export function VouchersFilterPopover({
   anchorEl,
@@ -124,253 +180,212 @@ export function VouchersFilterPopover({
   };
 
   return (
-    <Popover
-      open={open}
-      anchorEl={anchorEl}
-      onClose={onClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      transformOrigin={{ vertical: "top", horizontal: "left" }}
-      slotProps={{
-        paper: {
-          sx: {
-            mt: 0.5,
-            p: 2,
-            width: 520,
-            maxWidth: "95vw",
-            borderRadius: 0,
-            border: "1px solid",
-            borderColor: "divider",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+    <LocalizationProvider dateAdapter={AdapterDateFnsJalali}>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={onClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 0.5,
+              p: 2,
+              width: 500,
+              maxWidth: "95vw",
+              borderRadius: 0,
+              border: "1px solid",
+              borderColor: "divider",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+            },
           },
-        },
-      }}
-    >
-      <Stack spacing={1.5}>
-        {/* ردیف‌های فیلتر */}
-        <Stack
-          spacing={1.5}
-          sx={{
-            pt: 1.2,
-            pb: 0.5,
-            maxHeight: 280,
-            overflowY: "auto",
-            pr: 0.5,
-          }}
-        >
-          {filters.map((filter) => {
-            const currentOperators = COLUMN_OPERATORS[filter.column] || [];
+        }}
+      >
+        <Stack spacing={1.5}>
+          {/* ردیف‌های فیلتر */}
+          <Stack
+            spacing={1.5}
+            sx={{
+              pt: 1.2,
+              pb: 0.5,
+              maxHeight: 280,
+              overflowY: "auto",
+              pr: 0.5,
+            }}
+          >
+            {filters.map((filter) => {
+              const currentOperators = COLUMN_OPERATORS[filter.column] || [];
 
-            return (
-              <Stack
-                key={filter.id}
-                direction="row"
-                spacing={1}
-                sx={{ alignItems: "center" }}
-              >
-                {/* کنترل داینامیک مقدار: اگر تاریخ باشد، فیلد DatePicker شمسی با آیکون تقویم و پلیس‌هولدر YYYY/MM/DD */}
-                {filter.column === "date" ? (
-                  filter.operator === "between" ? (
-                    /* حالت بین دو تاریخ */
-                    <Stack direction="row" spacing={0.8} sx={{ flex: 1.4 }}>
-                      <TextField
-                        variant="standard"
-                        label="از تاریخ"
-                        placeholder="YYYY/MM/DD"
-                        value={filter.value}
-                        onChange={(e) =>
-                          handleFieldChange(filter.id, "value", e.target.value)
-                        }
-                        slotProps={{
-                          input: {
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <CalendarMonthRounded
-                                  sx={{ color: "#1976d2", fontSize: 20, cursor: "pointer" }}
-                                />
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                        sx={{
-                          flex: 1,
-                          "& .MuiInputBase-input": { fontSize: 13, py: 0.5 },
-                          "& .MuiInputLabel-root": { fontSize: 13 },
-                        }}
-                      />
-                      <TextField
-                        variant="standard"
-                        label="تا تاریخ"
-                        placeholder="YYYY/MM/DD"
-                        value={filter.secondValue || ""}
-                        onChange={(e) =>
-                          handleFieldChange(filter.id, "secondValue", e.target.value)
-                        }
-                        slotProps={{
-                          input: {
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <CalendarMonthRounded
-                                  sx={{ color: "#1976d2", fontSize: 20, cursor: "pointer" }}
-                                />
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                        sx={{
-                          flex: 1,
-                          "& .MuiInputBase-input": { fontSize: 13, py: 0.5 },
-                          "& .MuiInputLabel-root": { fontSize: 13 },
-                        }}
-                      />
-                    </Stack>
+              return (
+                <Stack
+                  key={filter.id}
+                  direction="row"
+                  spacing={0.8}
+                  sx={{ alignItems: "center" }}
+                >
+                  {/* فیلد داینامیک تاریخ یا ورودی متنی */}
+                  {filter.column === "date" ? (
+                    filter.operator === "between" ? (
+                      <Stack direction="row" spacing={0.8} sx={{ flex: 1.4 }}>
+                        <MuiJalaliDatePicker
+                          label="از تاریخ"
+                          value={filter.value}
+                          onChange={(val) => handleFieldChange(filter.id, "value", val)}
+                        />
+                        <MuiJalaliDatePicker
+                          label="تا تاریخ"
+                          value={filter.secondValue || ""}
+                          onChange={(val) =>
+                            handleFieldChange(filter.id, "secondValue", val)
+                          }
+                        />
+                      </Stack>
+                    ) : (
+                      <Stack sx={{ flex: 1.2 }}>
+                        <MuiJalaliDatePicker
+                          label="تاریخ سند"
+                          value={filter.value}
+                          onChange={(val) => handleFieldChange(filter.id, "value", val)}
+                        />
+                      </Stack>
+                    )
                   ) : (
-                    /* حالت تک تاریخ (برابر با، پیش از، پس از) */
                     <TextField
-                      variant="standard"
-                      label="تاریخ سند"
-                      placeholder="YYYY/MM/DD"
+                      size="small"
+                      label="مقدار"
+                      placeholder="فیلتر مقدار"
                       value={filter.value}
                       onChange={(e) =>
                         handleFieldChange(filter.id, "value", e.target.value)
                       }
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <CalendarMonthRounded
-                                sx={{ color: "#1976d2", fontSize: 20, cursor: "pointer" }}
-                              />
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
                       sx={{
                         flex: 1.2,
-                        "& .MuiInputBase-input": { fontSize: 13, py: 0.5 },
-                        "& .MuiInputLabel-root": { fontSize: 13 },
+                        "& .MuiOutlinedInput-root": { borderRadius: 0 },
+                        "& .MuiInputBase-input": { py: 0.8, fontSize: 13 },
                       }}
                     />
-                  )
-                ) : (
-                  /* برای شماره و شرح */
-                  <TextField
+                  )}
+
+                  {/* فیلد عملگرها */}
+                  <FormControl size="small" sx={{ width: 105 }}>
+                    <InputLabel sx={{ fontSize: 13 }}>عملگرها</InputLabel>
+                    <Select
+                      value={filter.operator}
+                      label="عملگرها"
+                      onChange={(e) =>
+                        handleFieldChange(filter.id, "operator", e.target.value)
+                      }
+                      sx={{
+                        borderRadius: 0,
+                        fontSize: 13,
+                        "& .MuiSelect-select": { py: 0.8 },
+                      }}
+                    >
+                      {currentOperators.map((op) => (
+                        <MenuItem key={op.id} value={op.id} sx={{ fontSize: 13 }}>
+                          {op.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* فیلد ستون‌ها */}
+                  <FormControl size="small" sx={{ width: 120 }}>
+                    <InputLabel sx={{ fontSize: 13 }}>ستون‌ها</InputLabel>
+                    <Select
+                      value={filter.column}
+                      label="ستون‌ها"
+                      onChange={(e) =>
+                        handleColumnChange(
+                          filter.id,
+                          e.target.value as "number" | "date" | "description"
+                        )
+                      }
+                      sx={{
+                        borderRadius: 0,
+                        fontSize: 13,
+                        "& .MuiSelect-select": { py: 0.8 },
+                      }}
+                    >
+                      {AVAILABLE_COLUMNS.map((col) => (
+                        <MenuItem key={col.id} value={col.id} sx={{ fontSize: 13 }}>
+                          {col.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* دکمه حذف سطر */}
+                  <IconButton
                     size="small"
-                    label="مقدار"
-                    placeholder="فیلتر مقدار"
-                    value={filter.value}
-                    onChange={(e) =>
-                      handleFieldChange(filter.id, "value", e.target.value)
-                    }
-                    sx={{
-                      flex: 1.2,
-                      "& .MuiOutlinedInput-root": { borderRadius: 0 },
-                      "& .MuiInputBase-input": { py: 0.8, fontSize: 13 },
-                    }}
-                  />
-                )}
-
-                {/* فیلد عملگرها */}
-                <FormControl size="small" sx={{ width: 105 }}>
-                  <InputLabel sx={{ fontSize: 13 }}>عملگرها</InputLabel>
-                  <Select
-                    value={filter.operator}
-                    label="عملگرها"
-                    onChange={(e) =>
-                      handleFieldChange(filter.id, "operator", e.target.value)
-                    }
+                    onClick={() => handleRemoveFilter(filter.id)}
+                    disabled={filters.length === 1}
                     sx={{
                       borderRadius: 0,
-                      fontSize: 13,
-                      "& .MuiSelect-select": { py: 0.8 },
+                      color: "text.disabled",
+                      p: 0.5,
+                      "&:hover": { color: "error.main" },
                     }}
                   >
-                    {currentOperators.map((op) => (
-                      <MenuItem key={op.id} value={op.id} sx={{ fontSize: 13 }}>
-                        {op.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    <CloseRounded sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Stack>
+              );
+            })}
+          </Stack>
 
-                {/* فیلد ستون‌ها */}
-                <FormControl size="small" sx={{ width: 120 }}>
-                  <InputLabel sx={{ fontSize: 13 }}>ستون‌ها</InputLabel>
-                  <Select
-                    value={filter.column}
-                    label="ستون‌ها"
-                    onChange={(e) =>
-                      handleColumnChange(
-                        filter.id,
-                        e.target.value as "number" | "date" | "description"
-                      )
-                    }
-                    sx={{
-                      borderRadius: 0,
-                      fontSize: 13,
-                      "& .MuiSelect-select": { py: 0.8 },
-                    }}
-                  >
-                    {AVAILABLE_COLUMNS.map((col) => (
-                      <MenuItem key={col.id} value={col.id} sx={{ fontSize: 13 }}>
-                        {col.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+          <Divider />
 
-                {/* دکمه حذف سطر */}
-                <IconButton
-                  size="small"
-                  onClick={() => handleRemoveFilter(filter.id)}
-                  disabled={filters.length === 1}
-                  sx={{
-                    borderRadius: 0,
-                    color: "text.disabled",
-                    p: 0.5,
-                    "&:hover": { color: "error.main" },
-                  }}
-                >
-                  <CloseRounded sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Stack>
-            );
-          })}
-        </Stack>
+          {/* فوتر */}
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Stack direction="row" spacing={0.5}>
+              <Button
+                variant="text"
+                color="inherit"
+                size="small"
+                startIcon={<DeleteOutlineRounded sx={{ fontSize: 16 }} />}
+                onClick={handleClearAll}
+                sx={{
+                  borderRadius: 0,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  color: "text.secondary",
+                  px: 1,
+                }}
+              >
+                حذف همه
+              </Button>
 
-        <Divider />
-
-        {/* فوتر عملیات */}
-        <Stack
-          direction="row"
-          sx={{
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Stack direction="row" spacing={0.5}>
-            <Button
-              variant="text"
-              color="inherit"
-              size="small"
-              startIcon={<DeleteOutlineRounded sx={{ fontSize: 16 }} />}
-              onClick={handleClearAll}
-              sx={{
-                borderRadius: 0,
-                fontWeight: 600,
-                fontSize: 12,
-                color: "text.secondary",
-                px: 1,
-              }}
-            >
-              حذف همه
-            </Button>
+              <Button
+                variant="text"
+                color="primary"
+                size="small"
+                startIcon={<CheckCircleOutlineRounded sx={{ fontSize: 16 }} />}
+                onClick={handleApply}
+                sx={{
+                  borderRadius: 0,
+                  fontWeight: 700,
+                  fontSize: 12,
+                  px: 1,
+                }}
+              >
+                اعمال
+              </Button>
+            </Stack>
 
             <Button
               variant="text"
               color="primary"
               size="small"
-              startIcon={<CheckCircleOutlineRounded sx={{ fontSize: 16 }} />}
-              onClick={handleApply}
+              startIcon={<AddRounded sx={{ fontSize: 16 }} />}
+              onClick={handleAddFilter}
               sx={{
                 borderRadius: 0,
                 fontWeight: 700,
@@ -378,27 +393,11 @@ export function VouchersFilterPopover({
                 px: 1,
               }}
             >
-              اعمال
+              افزودن فیلتر
             </Button>
           </Stack>
-
-          <Button
-            variant="text"
-            color="primary"
-            size="small"
-            startIcon={<AddRounded sx={{ fontSize: 16 }} />}
-            onClick={handleAddFilter}
-            sx={{
-              borderRadius: 0,
-              fontWeight: 700,
-              fontSize: 12,
-              px: 1,
-            }}
-          >
-            افزودن فیلتر
-          </Button>
         </Stack>
-      </Stack>
-    </Popover>
+      </Popover>
+    </LocalizationProvider>
   );
 }
