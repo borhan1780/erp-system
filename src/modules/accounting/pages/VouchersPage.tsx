@@ -20,16 +20,24 @@ import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 
 import { useVouchers } from "../hooks/useVouchers";
 import { VouchersHeader } from "../components/VouchersHeader";
+import type { FilterRow } from "../types/vouchers.types";
+import { mapFiltersToQueryParams } from "../utils/voucherFilter.helper";
 import { toJalaliDate } from "@/shared/utils/date";
 
 export function VouchersPage() {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
+  const [appliedFilters, setAppliedFilters] = useState<FilterRow[]>([]);
 
-  const { data, isLoading, isError, refetch, isFetching } = useVouchers(
-    page + 1,
-    pageSize
-  );
+  // تبدیل ردیف‌های فیلتر به پارامترهای API
+  const dynamicFilterParams = mapFiltersToQueryParams(appliedFilters);
+
+  // فراخوانی هوک با ارسال آبجکت کامل
+  const { data, isLoading, isError, refetch, isFetching } = useVouchers({
+    page: page + 1,
+    pageSize,
+    ...dynamicFilterParams,
+  });
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -39,6 +47,11 @@ export function VouchersPage() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setPageSize(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleApplyFilters = (filters: FilterRow[]) => {
+    setAppliedFilters(filters);
     setPage(0);
   };
 
@@ -60,8 +73,12 @@ export function VouchersPage() {
 
   return (
     <Stack spacing={2} sx={{ width: "100%", height: "calc(100vh - 110px)" }}>
-      {/* هدر مجزا */}
-      <VouchersHeader onRefresh={refetch} isRefreshing={isFetching} />
+      {/* هدر صفحه */}
+      <VouchersHeader
+        onRefresh={refetch}
+        isRefreshing={isFetching}
+        onApplyFilters={handleApplyFilters}
+      />
 
       {/* بخش جدول */}
       <Paper
@@ -94,66 +111,76 @@ export function VouchersPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.results.map((voucher) => (
-                <TableRow hover key={voucher.id}>
-                  <TableCell align="center">{voucher.row_number}</TableCell>
-                  <TableCell align="center">{voucher.number}</TableCell>
-                  <TableCell align="center">
-                    {toJalaliDate(voucher.date)}
-                  </TableCell>
-                  <TableCell align="center">
-                    {voucher.description || "-"}
-                  </TableCell>
-                  <TableCell align="center">
-                    <Chip
-                      label={
-                        voucher.status === "DRAFT"
-                          ? "پیش‌نویس"
-                          : voucher.status === "PENDING"
-                          ? "در انتظار تأیید"
-                          : voucher.status === "FINAL"
-                          ? "قطعی"
-                          : "نامشخص"
-                      }
-                      color={
-                        voucher.status === "DRAFT"
-                          ? "default"
-                          : voucher.status === "PENDING"
-                          ? "warning"
-                          : voucher.status === "FINAL"
-                          ? "success"
-                          : "default"
-                      }
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell align="center">{voucher.serial}</TableCell>
-                  <TableCell align="center">{voucher.module_name}</TableCell>
-                  <TableCell align="center">{voucher.branch_name}</TableCell>
-                  <TableCell align="center">{voucher.type_name}</TableCell>
-                  <TableCell align="center">
-                    {voucher.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell align="center">
-                    {toJalaliDate(voucher.created_at)}
-                  </TableCell>
-                  <TableCell align="center">
-                    {voucher.has_attachment === "true" ? (
-                      <CheckCircleRoundedIcon
-                        color="success"
-                        fontSize="small"
+              {data?.results && data.results.length > 0 ? (
+                data.results.map((voucher) => (
+                  <TableRow hover key={voucher.id}>
+                    <TableCell align="center">{voucher.row_number}</TableCell>
+                    <TableCell align="center">{voucher.number}</TableCell>
+                    <TableCell align="center">
+                      {toJalaliDate(voucher.date)}
+                    </TableCell>
+                    <TableCell align="center">
+                      {voucher.description || "-"}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Chip
+                        label={
+                          voucher.status === "DRAFT"
+                            ? "پیش‌نویس"
+                            : voucher.status === "PENDING"
+                            ? "در انتظار تأیید"
+                            : voucher.status === "FINAL"
+                            ? "قطعی"
+                            : "نامشخص"
+                        }
+                        color={
+                          voucher.status === "DRAFT"
+                            ? "default"
+                            : voucher.status === "PENDING"
+                            ? "warning"
+                            : voucher.status === "FINAL"
+                            ? "success"
+                            : "default"
+                        }
+                        size="small"
+                        variant="outlined"
                       />
-                    ) : (
-                      <CancelRoundedIcon
-                        color="error"
-                        fontSize="small"
-                        sx={{ opacity: 0.6 }}
-                      />
-                    )}
+                    </TableCell>
+                    <TableCell align="center">{voucher.serial}</TableCell>
+                    <TableCell align="center">{voucher.module_name}</TableCell>
+                    <TableCell align="center">{voucher.branch_name}</TableCell>
+                    <TableCell align="center">{voucher.type_name}</TableCell>
+                    <TableCell align="center">
+                      {voucher.amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell align="center">
+                      {toJalaliDate(voucher.created_at)}
+                    </TableCell>
+                    <TableCell align="center">
+                      {voucher.has_attachment === "true" ? (
+                        <CheckCircleRoundedIcon
+                          color="success"
+                          fontSize="small"
+                        />
+                      ) : (
+                        <CancelRoundedIcon
+                          color="error"
+                          fontSize="small"
+                          sx={{ opacity: 0.6 }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={12} align="center" sx={{ py: 6 }}>
+                    <Typography color="text.secondary" sx={{ fontSize: 13 }}>
+                      سندی برای نمایش یافت نشد.
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
