@@ -81,7 +81,6 @@ export function CopyVouchersDialog({ open, onClose }: CopyVouchersDialogProps) {
         </IconButton>
       </DialogTitle>
 
-      {/* بدنه و انتخاب‌گر */}
       <DialogContent sx={{ py: 1.5 }}>
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary">
