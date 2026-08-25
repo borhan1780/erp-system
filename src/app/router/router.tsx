@@ -10,6 +10,7 @@ import { DashboardSessionProvider } from "@/modules/dashboard/session/DashboardS
 import { AppLayout } from "@/modules/app/layouts/AppLayout";
 import { ModulePage } from "@/modules/app/pages/ModulePage";
 import { VouchersPage } from "@/modules/accounting/pages/VouchersPage";
+import { PaymentPage } from "@/modules/treasury/pages/PaymentPage";
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +52,11 @@ export const router = createBrowserRouter([
                 path: "/current-affairs/vouchers",
                 element: <VouchersPage />,
               },
+              {
+                path: "/current-affairs/payment-transactions",
+                element: <PaymentPage />,
+              },
+
               {
                 path: "/app",
                 element: <Navigate to="/app/tree" replace />,
