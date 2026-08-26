@@ -7,7 +7,61 @@ export interface PaymentItem {
   sum_pay_check_amount: number;
   sum_spend_check_amount: number;
   sum_withdraw_amount: number;
-  
+  cashier_foreign_currency_slave_account_title: string | null;
+  cashier_foreign_currency_slave_account_code: string | null;
+  cashier_foreign_currency_slave_account_company_id: string | null;
+  cashier_foreign_currency_slave_account_company_float_types: string | null;
+  cashier_foreign_currency_master_account_title: string | null;
+  cashier_foreign_currency_master_account_code: string | null;
+  cashier_foreign_currency_master_account_id: string | null;
+  cashier_foreign_currency_slave2_account_title: string | null;
+  cashier_foreign_currency_slave2_account_code: string | null;
+  cashier_foreign_currency_slave3_account_title: string | null;
+  cashier_foreign_currency_slave3_account_code: string | null;
+  cashier_guarantee_document_slave_account_title: string | null;
+  cashier_guarantee_document_slave_account_code: string | null;
+  cashier_guarantee_document_slave_account_company_id: string | null;
+  cashier_guarantee_document_slave_account_company_float_types: string | null;
+  cashier_guarantee_document_master_account_title: string | null;
+  cashier_guarantee_document_master_account_code: string | null;
+  cashier_guarantee_document_master_account_id: string | null;
+  cashier_guarantee_document_slave2_account_title: string | null;
+  cashier_guarantee_document_slave2_account_code: string | null;
+  cashier_guarantee_document_slave3_account_title: string | null;
+  cashier_guarantee_document_slave3_account_code: string | null;
+  cashier_payable_check_slave_account_title: string | null;
+  cashier_payable_check_slave_account_code: string | null;
+  cashier_payable_check_slave_account_company_id: string | null;
+  cashier_payable_check_slave_account_company_float_types: string | null;
+  cashier_payable_check_master_account_title: string | null;
+  cashier_payable_check_master_account_code: string | null;
+  cashier_payable_check_master_account_id: string | null;
+  cashier_payable_check_slave2_account_title: string | null;
+  cashier_payable_check_slave2_account_code: string | null;
+  cashier_payable_check_slave3_account_title: string | null;
+  cashier_payable_check_slave3_account_code: string | null;
+  cashier_receivable_check_slave_account_title: string | null;
+  cashier_receivable_check_slave_account_code: string | null;
+  cashier_receivable_check_slave_account_company_id: string | null;
+  cashier_receivable_check_slave_account_company_float_types: string | null;
+  cashier_receivable_check_master_account_title: string | null;
+  cashier_receivable_check_master_account_code: string | null;
+  cashier_receivable_check_master_account_id: string | null;
+  cashier_receivable_check_slave2_account_title: string | null;
+  cashier_receivable_check_slave2_account_code: string | null;
+  cashier_receivable_check_slave3_account_title: string | null;
+  cashier_receivable_check_slave3_account_code: string | null;
+  cashier_rial_slave_account_title: string | null;
+  cashier_rial_slave_account_code: number | null;
+  cashier_rial_slave_account_company_id: string | null;
+  cashier_rial_slave_account_company_float_types: string | null;
+  cashier_rial_master_account_title: string | null;
+  cashier_rial_master_account_code: number | null;
+  cashier_rial_master_account_id: string | null;
+  cashier_rial_slave2_account_title: string | null;
+  cashier_rial_slave2_account_code: string | null;
+  cashier_rial_slave3_account_title: string | null;
+  cashier_rial_slave3_account_code: string | null;
   description: string;
   type: string;
   is_voucher_in_detail: boolean;
@@ -43,6 +97,7 @@ export interface PaymentsResponse {
   next: string | null;
   previous: string | null;
   results: PaymentItem[];
+  additional_data: Record<string, any>;
 }
 
 export interface GetPaymentsParams {
@@ -51,4 +106,5 @@ export interface GetPaymentsParams {
   periodId: string;
   page?: number;
   pageSize?: number;
+  [key: string]: any;
 }
