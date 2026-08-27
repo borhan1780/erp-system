@@ -108,3 +108,49 @@ export interface GetPaymentsParams {
   pageSize?: number;
   [key: string]: any;
 }
+
+export interface PaymentFlatItem {
+  id: string;
+  serial: number;
+  date: string;
+  transaction_id: string;
+  transaction_type: string;
+  debit: number;
+  description: string | null;
+  voucher_number: number | null;
+  voucher_id: string | null;
+  slave_title: string;
+  slave_code: number;
+  person_display_name: string;
+  person_code: number;
+  currency_name: string;
+  branch_id: string;
+  branch_name: string;
+  branch_code: string;
+  pay_to: string | null;
+  cashier_display_name: string;
+  cashier_code: number;
+  cashier_rial_slave_account_title: string | null;
+  cashier_rial_master_account_title: string | null;
+  type: string;
+  is_voucher_in_detail: boolean;
+  total_rows: number;
+  total_debit: number;
+}
+
+export interface PaymentFlatItemsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PaymentFlatItem[];
+  additional_data: Record<string, any>;
+}
+
+export interface GetPaymentFlatItemsParams {
+  companyId: string;
+  ledgerId: string;
+  periodId: string;
+  transactionId: string;
+  page?: number;
+  pageSize?: number;
+}
