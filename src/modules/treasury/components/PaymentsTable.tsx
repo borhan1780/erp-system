@@ -9,10 +9,14 @@ import {
   TableRow,
   TablePagination,
   Typography,
+  Button,
+  IconButton,
+  Stack,
 } from "@mui/material";
+import { MoreVertRounded } from "@mui/icons-material";
 import type { PaymentItem } from "../types/payment.types";
 import { toJalaliDate } from "@/shared/utils/date";
-
+import { useNavigate } from "react-router-dom";
 interface PaymentsTableProps {
   items: PaymentItem[];
   totalCount: number;
@@ -40,6 +44,8 @@ export function PaymentsTable({
     onRowsPerPageChange(parseInt(event.target.value, 10));
   };
 
+  const navigate = useNavigate();
+
   return (
     <Paper
       sx={{
@@ -56,6 +62,10 @@ export function PaymentsTable({
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
+              {/* ستون عملیات سطرها */}
+              <TableCell align="center" sx={{ width: 130 }}>
+
+              </TableCell>
               <TableCell align="center">سریال</TableCell>
               <TableCell align="center">تاریخ</TableCell>
               <TableCell align="center">صندوق‌دار</TableCell>
@@ -71,6 +81,37 @@ export function PaymentsTable({
             {items.length > 0 ? (
               items.map((payment) => (
                 <TableRow hover key={payment.id}>
+                  <TableCell align="center">
+                    <Stack
+                      direction="row"
+                      spacing={0.5}
+                      sx={{ alignItems: "center", justifyContent: "center" }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => {}}
+                        sx={{ color: "primary.main" }}
+                      >
+                        <MoreVertRounded fontSize="small" />
+                      </IconButton>
+
+                      <Button
+                        variant="outlined"
+                        size="small"
+                          onClick={() => navigate(`/current-affairs/payment-transactions/${payment.id}/items`)}                        sx={{
+                          fontSize: "0.75rem",
+                          py: 0.2,
+                          px: 1,
+                          minWidth: "auto",
+                          borderRadius: 1.5,
+                          fontWeight: 600,
+                        }}
+                      >
+                        آیتم‌ها
+                      </Button>
+                    </Stack>
+                  </TableCell>
+
                   <TableCell align="center">{payment.serial}</TableCell>
                   <TableCell align="center">{toJalaliDate(payment.date)}</TableCell>
                   <TableCell align="center">{payment.cashier_display_name}</TableCell>
@@ -90,7 +131,7 @@ export function PaymentsTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
                   <Typography color="text.secondary" sx={{ fontSize: 13 }}>
                     رکوردی برای پرداخت یافت نشد.
                   </Typography>
