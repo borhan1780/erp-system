@@ -11,6 +11,7 @@ import { AppLayout } from "@/modules/app/layouts/AppLayout";
 import { ModulePage } from "@/modules/app/pages/ModulePage";
 import { VouchersPage } from "@/modules/accounting/pages/VouchersPage";
 import { PaymentPage } from "@/modules/treasury/pages/PaymentPage";
+import { PaymentItemsPage } from "@/modules/treasury/pages/PaymentItemsPage";
 
 export const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
                 path: "/app",
                 element: <Navigate to="/app/tree" replace />,
               },
+              {
+                path: "/current-affairs/payment-transactions/:transactionId/items",
+                element: <PaymentItemsPage />,
+},
             ],
           },
         ],
