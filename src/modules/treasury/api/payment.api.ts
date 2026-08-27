@@ -1,5 +1,10 @@
 import { treasuryApi } from "@/core/api/client";
 import type { GetPaymentsParams, PaymentsResponse } from "../types/payment.types";
+import type {
+  GetPaymentFlatItemsParams,
+  PaymentFlatItemsResponse,
+} from "../types/payment.types";
+
 
 export async function getPayments({
   companyId,
@@ -28,4 +33,26 @@ export async function getPayments({
       }
     )
     .json<PaymentsResponse>();
+}
+
+export async function getPaymentFlatItems({
+  companyId,
+  ledgerId,
+  periodId,
+  transactionId,
+  page = 1,
+  pageSize = 30,
+}: GetPaymentFlatItemsParams): Promise<PaymentFlatItemsResponse> {
+  return treasuryApi
+    .get(
+      `/${companyId}/transactions/ledgers/${ledgerId}/periods/${periodId}/payment-all-flat-items/`,
+      {
+        searchParams: {
+          transaction_id: transactionId,
+          page: page.toString(),
+          page_size: pageSize.toString(),
+        },
+      }
+    )
+    .json<PaymentFlatItemsResponse>();
 }
